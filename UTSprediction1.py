@@ -70,7 +70,7 @@ def main():
             prediction = model.predict(input_df)
             
             # Decode prediction if needed
-            decoded_prediction = target_encoded.inverse_transform(prediction)
+            decoded_prediction = target_encoded.inverse_transform(prediction.reshape(-1, 1))
             
             # Show prediction
             st.success(f'The prediction is: {decoded_prediction[0]}')
