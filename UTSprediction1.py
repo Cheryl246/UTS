@@ -73,7 +73,7 @@ def main():
                                                   'Number of previous bookings not canceled', 'Average price per room', 
                                                   'Number of special requests'])
 
-   if st.button('Make Prediction'):
+if st.button('Make Prediction'):
     # Pastikan kolom yang diperlukan ada dalam data
     required_columns = ['Type of meal plan', 'Room type reserved', 'Market segment type']
     missing_columns = [col for col in required_columns if col not in data.columns]
