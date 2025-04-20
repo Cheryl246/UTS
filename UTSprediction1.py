@@ -75,9 +75,9 @@ def main():
 
     if st.button('Make Prediction'):
         if 'Type of meal plan' in data.columns and 'Room type reserved' in data.columns and 'Market segment type' in data.columns:
-            data['type_of_meal_plan'] = meal_plane.transform(data['type_of_meal_plan'])
-            data['room_type_reserved'] = room_type.transform(data['Room_type_reserved'])
-            data['market_segment_type'] = market_segment.transform(data['Market_segment_type'])
+            data['Type of meal plan'] = meal_plane.transform(data['Type of meal plan'])
+            data['Room type reserved'] = room_type.transform(data['Room type reserved'])
+            data['Market segment type'] = market_segment.transform(data['Market segment type'])
             if 'Booking ID' in data.columns:
                 features = data.drop(['Booking ID'], axis=1)
             else:
