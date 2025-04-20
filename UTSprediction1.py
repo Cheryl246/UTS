@@ -96,7 +96,7 @@ if st.button('Make Prediction'):
         # Melakukan prediksi dengan model yang sudah dilatih
         prediction = model.predict(features)
 
-        # Mendekode hasil prediksi
+        # Mendekode hasil prediksi jika diperlukan (misalnya, LabelEncoder)
         decoded_prediction = target_encoded.inverse_transform(prediction)
 
         # Menampilkan hasil prediksi
@@ -104,6 +104,7 @@ if st.button('Make Prediction'):
     else:
         # Menampilkan error jika kolom tidak ditemukan
         st.error(f"Missing columns: {', '.join(missing_columns)}")
+
 
 if __name__ == '__main__':
     main()
