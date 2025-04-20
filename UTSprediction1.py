@@ -63,19 +63,21 @@ def main():
             input_df['room_type_reserved'] = room_type.transform(input_df['room_type_reserved'].astype(str))
             input_df['market_segment_type'] = market_segment.transform(input_df['market_segment_type'].astype(str))
             
-            
-            # Make sure all columns are numeric
+    
+            # Ensure all columns are numeric
             input_df = input_df.astype(float)
             
             # Make prediction
             prediction = model.predict(input_df)
             
-            # Decode prediction if needed
+            # Decode prediction
             decoded_prediction = target_encoded.inverse_transform(prediction.reshape(-1, 1))
             
             # Show prediction
-            st.success(f'The prediction is: {decoded_prediction[0]}')
+            st.success(f'The prediction is: {decoded_prediction[0][0]}')
             
+            # Show prediction
+]            
         except Exception as e:
             st.error(f"An error occurred: {str(e)}")
 
