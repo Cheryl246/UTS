@@ -73,21 +73,37 @@ def main():
                                                   'Number of previous bookings not canceled', 'Average price per room', 
                                                   'Number of special requests'])
 
-    if st.button('Make Prediction'):
-        if 'Type of meal plan' in data.columns and 'Room type reserved' in data.columns and 'Market segment type' in data.columns:
-            data['Type of meal plan'] = meal_plane.transform(data['Type of meal plan'])
-            data['Room type reserved'] = room_type.transform(data['Room type reserved'])
-            data['Market segment type'] = market_segment.transform(data['Market segment type'])
-            if 'Booking ID' in data.columns:
-                features = data.drop(['Booking ID'], axis=1)
-            else:
-                features = data
-            features = features.fillna(0).astype(float)
-            prediction = model.predict(features)
-            decoded_prediction = target_encoded.inverse_transform(prediction)
-            st.success(f'The prediction is: {decoded_prediction[0]}')
+   if st.button('Make Prediction'):
+    # Pastikan kolom yang diperlukan ada dalam data
+    required_columns = ['Type of meal plan', 'Room type reserved', 'Market segment type']
+    missing_columns = [col for col in required_columns if col not in data.columns]
+    
+    if not missing_columns:
+        # Lakukan transformasi pada kolom dengan encoder yang sesuai
+        data['Type of meal plan'] = meal_plane.transform(data['Type of meal plan'])
+        data['Room type reserved'] = room_type.transform(data['Room type reserved'])
+        data['Market segment type'] = market_segment.transform(data['Market segment type'])
+
+        # Menghapus kolom 'Booking ID' jika ada dan mempersiapkan fitur untuk prediksi
+        if 'Booking ID' in data.columns:
+            features = data.drop(['Booking ID'], axis=1)
         else:
-            st.error("Required columns are missing in the input data.")
+            features = data
+
+        # Pastikan tidak ada nilai NaN dan konversikan fitur menjadi tipe float
+        features = features.fillna(0).astype(float)
+
+        # Melakukan prediksi dengan model yang sudah dilatih
+        prediction = model.predict(features)
+
+        # Mendekode hasil prediksi
+        decoded_prediction = target_encoded.inverse_transform(prediction)
+
+        # Menampilkan hasil prediksi
+        st.success(f'The prediction is: {decoded_prediction[0]}')
+    else:
+        # Menampilkan error jika kolom tidak ditemukan
+        st.error(f"Missing columns: {', '.join(missing_columns)}")
 
 if __name__ == '__main__':
     main()
