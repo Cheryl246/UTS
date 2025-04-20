@@ -1,32 +1,18 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
 import streamlit as st
-import pickle
 import pandas as pd
-import numpy as np
 import joblib
 
-
-# In[2]:
-
-
-# Load the machine learning model and encode
-model = joblib.load('Ranfor_train1.pkl')
-target_encoded= joblib.load('target_encoded.pkl')
-meal_plane=joblib.load('meal_plan.pkl')
-room_type=joblib.load('room_type.pkl')
-market_segment=joblib.load('market_segment.pkl')
-
-
-# In[3]:
-
+# Memuat model dan encoder yang diperlukan
+model = joblib.load('Ranfor_train1.pkl')  # Pastikan model dimuat dengan benar
+meal_plane = joblib.load('meal_plan.pkl')  # Pastikan meal_plane encoder dimuat
+room_type = joblib.load('room_type.pkl')  # Pastikan room_type encoder dimuat
+market_segment = joblib.load('market_segment.pkl')  # Pastikan market_segment encoder dimuat
+target_encoded = joblib.load('target_encoded.pkl')  # Pastikan target_encoded encoder dimuat
 
 def main():
-    st.title('Hotel Reservastion Prediction')
+    st.title('Hotel Reservation Prediction')
+
+    # Input data dari pengguna
     Booking_ID = st.text_input("Booking_ID")
     no_of_adults = st.selectbox("Adults", options=range(1,11))
     no_of_children = st.selectbox("Children, under 17", options=range(1,11))
@@ -43,9 +29,10 @@ def main():
     repeated_guest = st.radio("Repeated guest", [0, 1])
     no_of_previous_cancellations = st.number_input("Number of previous cancellations", 0, 30)
     no_of_previous_bookings_not_canceled = st.number_input("Number of previous bookings not canceled", 0, 30)
-    avg_price_per_room = st.text_input("Average price per room (in Euros)")
+    avg_price_per_room = st.text_input("Average price per room (in Euros)")  # Convert to float later
     no_of_special_requests = st.number_input("Number of special requests", 0, 10)
-    
+
+    # Membuat DataFrame dari input pengguna
     data = {
         'Booking ID': Booking_ID,
         'Number of adults': no_of_adults,
@@ -64,53 +51,55 @@ def main():
         'Number of previous cancellations': no_of_previous_cancellations,
         'Number of previous bookings not canceled': no_of_previous_bookings_not_canceled,
         'Average price per room': avg_price_per_room,
-        'Number of special requests': no_of_special_requests }
+        'Number of special requests': no_of_special_requests
+    }
+
+    data = pd.DataFrame([list(data.values())], columns=[
+        'Booking ID', 'Number of adults', 'Number of children', 'Number of weekend nights',
+        'Number of week nights', 'Type of meal plan', 'Required car parking space',
+        'Room type reserved', 'Lead time', 'Arrival year', 'Arrival month', 'Arrival date',
+        'Market segment type', 'Repeated guest', 'Number of previous cancellations',
+        'Number of previous bookings not canceled', 'Average price per room',
+        'Number of special requests'
+    ])
+
+    if st.button('Make Prediction'):
+        # Pastikan kolom yang diperlukan ada dalam data
+        required_columns = ['Type of meal plan', 'Room type reserved', 'Market segment type']
+        missing_columns = [col for col in required_columns if col not in data.columns]
         
-    data = pd.DataFrame([list(data.values())], columns=['Booking ID', 'Number of adults', 'Number of children', 'Number of weekend nights', 
-                                                  'Number of week nights', 'Type of meal plan', 'Required car parking space', 
-                                                  'Room type reserved', 'Lead time', 'Arrival year', 'Arrival month', 'Arrival date', 
-                                                  'Market segment type', 'Repeated guest', 'Number of previous cancellations', 
-                                                  'Number of previous bookings not canceled', 'Average price per room', 
-                                                  'Number of special requests'])
+        if not missing_columns:
+            # Lakukan transformasi pada kolom dengan encoder yang sesuai
+            data['Type of meal plan'] = meal_plane.transform(data['Type of meal plan'])
+            data['Room type reserved'] = room_type.transform(data['Room type reserved'])
+            data['Market segment type'] = market_segment.transform(data['Market segment type'])
 
-if st.button('Make Prediction'):
-    # Pastikan kolom yang diperlukan ada dalam data
-    required_columns = ['Type of meal plan', 'Room type reserved', 'Market segment type']
-    missing_columns = [col for col in required_columns if col not in data.columns]
-    
-    if not missing_columns:
-        # Lakukan transformasi pada kolom dengan encoder yang sesuai
-        data['Type of meal plan'] = meal_plane.transform(data['Type of meal plan'])
-        data['Room type reserved'] = room_type.transform(data['Room type reserved'])
-        data['Market segment type'] = market_segment.transform(data['Market segment type'])
+            # Menghapus kolom 'Booking ID' jika ada dan mempersiapkan fitur untuk prediksi
+            if 'Booking ID' in data.columns:
+                features = data.drop(['Booking ID'], axis=1)
+            else:
+                features = data
 
-        # Menghapus kolom 'Booking ID' jika ada dan mempersiapkan fitur untuk prediksi
-        if 'Booking ID' in data.columns:
-            features = data.drop(['Booking ID'], axis=1)
+            # Pastikan tidak ada nilai NaN dan konversikan fitur menjadi tipe float
+            features = features.fillna(0).astype(float)
+
+            # Mengonversi 'Average price per room' menjadi tipe numerik
+            features['Average price per room'] = pd.to_numeric(features['Average price per room'], errors='coerce')
+
+            # Melakukan prediksi dengan model yang sudah dilatih
+            prediction = model.predict(features)
+
+            # Mendekode hasil prediksi jika diperlukan (misalnya, LabelEncoder)
+            decoded_prediction = target_encoded.inverse_transform(prediction)
+
+            # Menampilkan hasil prediksi
+            st.success(f'The prediction is: {decoded_prediction[0]}')
         else:
-            features = data
+            # Menampilkan error jika kolom tidak ditemukan
+            st.error(f"Missing columns: {', '.join(missing_columns)}")
 
-        # Pastikan tidak ada nilai NaN dan konversikan fitur menjadi tipe float
-        features = features.fillna(0).astype(float)
-
-        # Melakukan prediksi dengan model yang sudah dilatih
-        prediction = model.predict(features)
-
-        # Mendekode hasil prediksi jika diperlukan (misalnya, LabelEncoder)
-        decoded_prediction = target_encoded.inverse_transform(prediction)
-
-        # Menampilkan hasil prediksi
-        st.success(f'The prediction is: {decoded_prediction[0]}')
-    else:
-        # Menampilkan error jika kolom tidak ditemukan
-        st.error(f"Missing columns: {', '.join(missing_columns)}")
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
-
-
-# In[ ]:
 
 
 
