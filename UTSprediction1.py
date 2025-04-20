@@ -59,9 +59,10 @@ def main():
     if st.button('Make Prediction'):
         try:
             # Encode categorical variables - using consistent column names
-            input_df['type_of_meal_plan'] = meal_plane.transform(input_df['type_of_meal_plan'])
-            input_df['room_type_reserved'] = room_type.transform(input_df['room_type_reserved'])
-            input_df['market_segment_type'] = market_segment.transform(input_df['market_segment_type'])
+            input_df['type_of_meal_plan'] = meal_plane.transform(input_df['type_of_meal_plan'].astype(str))
+            input_df['room_type_reserved'] = room_type.transform(input_df['room_type_reserved'].astype(str))
+            input_df['market_segment_type'] = market_segment.transform(input_df['market_segment_type'].astype(str))
+            
             
             # Make sure all columns are numeric
             input_df = input_df.astype(float)
