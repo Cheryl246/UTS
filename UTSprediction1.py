@@ -76,8 +76,7 @@ def main():
             # Show prediction
             st.success(f'The prediction is: {decoded_prediction[0][0]}')
             
-            # Show prediction
-]            
+            # Show predictio   
         except Exception as e:
             st.error(f"An error occurred: {str(e)}")
 
