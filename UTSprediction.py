@@ -15,14 +15,14 @@ import joblib
 
 
 # Load the machine learning model and encode
-model = joblib.load('Ranfor_train.pkl')
+model = joblib.load('Ranfor_train1.pkl')
 target_encoded= joblib.load('target_encoded.pkl')
 meal_plane=joblib.load('meal_plan.pkl')
 room_type=joblib.load('room_type.pkl')
 market_segment=joblib.load('market_segment.pkl')
 
 
-# In[4]:
+# In[3]:
 
 
 def main():

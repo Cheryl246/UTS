@@ -16,6 +16,7 @@ import numpy as np
 import pickle
 import joblib
 import xgboost as xgb
+import gzip
 
 
 # In[2]:
@@ -97,10 +98,10 @@ class ModelPreprocessing:
     def createReport(self):
         print('\nClassification Report\n')
         print(classification_report(self.y_test, self.y_predict, target_names=['0','1']))
-    def SaveModel(self, filename):
-        with open(filename, 'wb') as file:  # Open the file in write-binary mode
-            pickle.dump(self.model, file)
-        
+    def SaveGzip(self, filename):
+        with gzip.open(filename, 'wb') as f:
+            pickle.dump(self.model, f)
+        print(f"Model berhasil disimpan dengan kompresi gzip ke {filename}")
 
 
 # In[5]:
@@ -127,7 +128,7 @@ model_process.BinaryEncode()
 model_process.TrainModel()
 model_process.PredictModel()
 model_process.createReport()
-model_process.SaveModel('Ranfor_train.pkl') 
+model_process.SaveGzip('Ranfor_train1.pkl')
 
 
 # In[ ]:
